@@ -4,19 +4,37 @@ from datetime import datetime
 from random import randint
 
 class Maker:
-    def a(self):
-        print("HERE")
+    def mcb(pressed):
+        obs.obs_hotkey_unregister(Maker.mcb)
+        print("mcb")
+        register_hotkey("D")
 
+m = Maker()
 
-def make_method(name):
+hotkeyStuff = None
+callback = None 
+
+def make_method():
     def _method(pressed):
         if pressed:
             print("HERE")
+            register_hotkey("B")
+            # obs.remove_current_callback()
+            obs.obs_hotkey_unregister(callback)
+            print("REMOVED")
     return _method
 
-def aasdf(pressed):
-    print("ASDASDAS")
+__cb4 = None
 
+def cb(pressed):
+    print("HASDASD")
+    obs.obs_hotkey_unregister(cb)
+
+def __move_it(pressed):
+    # obs.remove_current_callback()
+    obs.obs_hotkey_unregister(__cb4)
+    register_hotkey("D")
+    print("MOVEING")
 
 def register_hotkey(letter):
     print(f"Registering: {letter}")
@@ -25,20 +43,25 @@ def register_hotkey(letter):
     prep[id] = [{"key": f"OBS_KEY_{letter}"} ]
     input = json.dumps(prep)
     print(input)
-    method_id = f"asdf_{letter}"
-    m = Maker()
-    setattr(m, method_id, make_method(method_id))
-    # setattr(m, "a", make_method(method_id))
-
+    # method_id = f"asdf_{letter}"
+    # setattr(m, method_id, make_method())
+    # callback = m.asdf_A
     dataStuff = obs.obs_data_create_from_json(input)
     arrayStuff = obs.obs_data_get_array(dataStuff, id)
-    hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, lambda pressed : getattr(m, method_id)(pressed) )
+    __cb4 = lambda pressed : __move_it(pressed)
+    # tmp = m.mcb
+    hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, lambda pressed : __cb4(pressed) )
+    # hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, lambda pressed : Maker.mbc )
+    # hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, Maker.mcb)
+    # hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, cb)
+    # hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, callback )
+    # hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, lambda pressed : getattr(m, method_id)(pressed) )
     # hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, lambda pressed : m.a() )
     #hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, aasdf)
 
     obs.obs_hotkey_load(hotkeyStuff, arrayStuff)
-    obs.obs_data_array_release(arrayStuff)
-    obs.obs_data_release(dataStuff)
+    # obs.obs_data_array_release(arrayStuff)
+    # obs.obs_data_release(dataStuff)
 
 
     #setattr(method_id, self.make_method(method_id))
@@ -55,7 +78,6 @@ def register_hotkey(letter):
 
 def script_load(settigs):
     register_hotkey("A")
-
 
 # class Setter:
 #     def __init__(self):
