@@ -7,6 +7,7 @@ class KeyMover():
         self.register_key("A")
 
     def register_key(self, letter):
+        self.callback = lambda pressed: self.process(pressed)
         id = f"RANDOM LETTER"
         prep = {}
         prep[id] = [{"key": f"OBS_KEY_{letter}"} ]
@@ -14,35 +15,19 @@ class KeyMover():
         print(input)
         dataStuff = obs.obs_data_create_from_json(input)
         arrayStuff = obs.obs_data_get_array(dataStuff, id)
-        hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, caught_keypress)
+        hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, self.callback)
         obs.obs_hotkey_load(hotkeyStuff, arrayStuff)
         obs.obs_data_array_release(arrayStuff)
         obs.obs_data_release(dataStuff)
-        # _hotkey = obs.obs_hotkey_register_frontend(id, id, lambda pressed : caught_keypress(pressed))
-
-
-        # json_text = """{ "RANDOM_LETTER": [{"key": f"OBS_KEY_A"} ] }"""
-        # dataStuff = obs.obs_data_create_from_json(json_text)
-        # arrayStuff = obs.obs_data_get_array(dataStuff, "RANDOM_LETTER")
-        # self.callback = lambda pressed: self.process(pressed)
-        # self.hotkey_id = obs.obs_hotkey_register_frontend("random_trigger", "Random Trigger", self.callback)
-        # obs.obs_hotkey_load(self.hotkey_id, arrayStuff)
-
-#     dataStuff = obs.obs_data_create_from_json(input)
-#     arrayStuff = obs.obs_data_get_array(dataStuff, id)
-#     obs.obs_hotkey_load(hotkeyStuff, arrayStuff)
 
 
 #     obs.obs_data_array_release(arrayStuff)
 #     obs.obs_data_release(dataStuff)
 #     # _hotkey = obs.obs_hotkey_register_frontend(id, id, lambda pressed : caught_keypress(pressed))
 
-
-    def callback(self):
-        print("hit callback")
-
-    def process(self):
-        print("hit process")
+    def process(self, pressed):
+        if pressed:
+            print("hit process")
 
 
 def script_load(settings):
