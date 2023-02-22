@@ -1,38 +1,105 @@
 import obspython as obs
 import json
 
-class KeyMover():
-    def __init__(self):
-        print("Loading mover...")
-        self.register_key("A")
 
-    def register_key(self, letter):
-        self.callback = lambda pressed: self.process(pressed)
-        id = f"RANDOM LETTER"
+class TrackGroup:
+    def __init__(self):
+        print("HER")
+        self.hotkey_saved_key = None
+        self.key1 = "key1"
+        self.callback = None
+        self.keyName = "RandomKeyer2"
+        self.letter = "A"
+
+    def update_source(self):
+	    self.__deregister_hotkey()  # source has changed! remove the existing hotkey...
+	    self.__unsave_hotkey()      # remove the saved reference to its name/value
+	    self.__register_hotkey()    # and re-register it under a new name
+
+    def __deregister_hotkey(self):
+	    if self.callback is not None:
+		    obs.obs_hotkey_unregister(self.callback)
+
+    def __register_hotkey(self):
+        key_description = self.keyName
+        self.callback = lambda pressed: self.__key_passthrough(pressed)  # small hack to get around the callback signature reqs.
+        self.hotkey_id = obs.obs_hotkey_register_frontend(self.key1, self.key1, self.callback)
+        # obs.obs_hotkey_load(self.hotkey_id, self.hotkey_saved_key)  # register new hotkey with GUI
         prep = {}
-        prep[id] = [{"key": f"OBS_KEY_{letter}"} ]
+        prep[self.key1] = [{"key": f"OBS_KEY_{self.letter}"} ]
         input = json.dumps(prep)
         print(input)
+        # hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, self.callback)
         dataStuff = obs.obs_data_create_from_json(input)
-        arrayStuff = obs.obs_data_get_array(dataStuff, id)
-        hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, self.callback)
-        obs.obs_hotkey_load(hotkeyStuff, arrayStuff)
+        arrayStuff = obs.obs_data_get_array(dataStuff, self.key1)
+        obs.obs_hotkey_load(self.hotkey_id, arrayStuff)  # register new hotkey with GUI
+        # obs.obs_hotkey_load(hotkeyStuff, arrayStuff)
         obs.obs_data_array_release(arrayStuff)
-        obs.obs_data_release(dataStuff)
+
+
+    def __unsave_hotkey(self):
+	    # clear the assigned key from the script's data array (when changing )
+	    obs.obs_data_erase(TrackGroup.obs_data, self.key1)
+
+    def __key_passthrough(self, pressed):
+        if pressed:
+            print("got it")
+
+
+
+def script_load(settings):
+    TrackGroup.obs_data = settings
+    x = TrackGroup()
+    x.update_source()
+
+
+
+
+# class KeyMover():
+#     def __init__(self):
+#         self.counter = 1
+#         print("Loading mover...")
+#         self.register_key("A")
+#         # self.register_key("D")
+
+    # def register_key(self, letter):
+    #     self.callback = lambda pressed: self.process(pressed)
+    #     id = f"RANDOM LETTER"
+    #     prep = {}
+    #     prep[id] = [{"key": f"OBS_KEY_{letter}"} ]
+    #     input = json.dumps(prep)
+    #     print(input)
+    #     hotkeyStuff = obs.obs_hotkey_register_frontend(id, id, self.callback)
+
+        # dataStuff = obs.obs_data_create_from_json(input)
+        # arrayStuff = obs.obs_data_get_array(dataStuff, id)
+        # obs.obs_hotkey_load(hotkeyStuff, arrayStuff)
+        # # obs.obs_data_array_release(arrayStuff)
+        # # obs.obs_data_release(dataStuff)
 
 
 #     obs.obs_data_array_release(arrayStuff)
 #     obs.obs_data_release(dataStuff)
 #     # _hotkey = obs.obs_hotkey_register_frontend(id, id, lambda pressed : caught_keypress(pressed))
 
-    def process(self, pressed):
-        if pressed:
-            print("hit process")
+    # def process(self, pressed):
+    #     if pressed:
+    #         print("hit process")
+    #         self.counter += 1
+    #         if self.counter == 4:
+    #             self.counter = 0
+    #             if self.callback is not None:
+    #                 print("clearing")
+    #                 obs.obs_hotkey_unregister(self.callback)
+    #                 self.register_key("D")
+
+            # print(self.counter)
 
 
-def script_load(settings):
-    print("Script loading...")
-    km = KeyMover()
+
+# def script_load(settings):
+#     print("Script loading...")
+#     km = KeyMover()
 
     # global counter
     # counter = 0
